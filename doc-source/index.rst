@@ -138,6 +138,9 @@ Installation
 
 .. end installation
 
+Contents
+---------
+
 .. toctree::
 	:hidden:
 
