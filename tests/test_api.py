@@ -31,9 +31,10 @@
 
 # stdlib
 import copy
+import datetime
 import os
 import pathlib
-import sys
+from collections import OrderedDict
 from decimal import Decimal
 
 # 3rd party
@@ -45,6 +46,7 @@ from toml import (
 		TomlPathlibEncoder,
 		TomlPreserveInlineDictEncoder
 		)
+from toml import ordered as toml_ordered
 from toml.decoder import InlineTableDict
 
 # this package
@@ -67,19 +69,7 @@ def test_bug_148():
 	assert 'a = "\\\\\\u0064"\n' == dumps({'a': "\\\\\\x64"})
 
 
-def test_bug_144():
-	return
-
-	bug_dict = {"username": "×©×××"}
-	round_trip_bug_dict = loads(dumps(bug_dict))
-	unicoded_bug_dict = {"username": bug_dict["username"].decode("utf-8")}
-	assert round_trip_bug_dict == unicoded_bug_dict
-	assert bug_dict["username"] == (round_trip_bug_dict["username"].encode("utf-8"))
-
-
 def test_bug_196():
-	# stdlib
-	import datetime
 	d = datetime.datetime.now()
 	bug_dict = {'x': d}
 	round_trip_bug_dict = loads(dumps(bug_dict))
@@ -172,8 +162,6 @@ def test_numpy_ints():
 
 
 def test_ordered():
-	# 3rd party
-	from toml import ordered as toml_ordered
 	encoder = toml_ordered.TomlOrderedEncoder()
 	decoder = toml_ordered.TomlOrderedDecoder()
 	o = loads(dumps(TEST_DICT, encoder=encoder), decoder=decoder)
@@ -217,16 +205,12 @@ class FakeFile:
 
 	def write(self, s):
 		self.written += s
-		return None
 
 	def read(self):
 		return self.written
 
 
 def test_dump(tmp_pathplus):
-	# stdlib
-	from collections import OrderedDict
-
 	dump(TEST_DICT, tmp_pathplus / "file.toml")
 	dump(load(tmp_pathplus / "file.toml", dict_=OrderedDict), tmp_pathplus / "file2.toml")
 	dump(load(tmp_pathplus / "file2.toml", dict_=OrderedDict), tmp_pathplus / "file3.toml")
@@ -252,20 +236,14 @@ def test_commutativity():
 
 
 def test_pathlib():
-	if (3, 4) <= sys.version_info:
-		# stdlib
-		import pathlib
-		o = {"root": {"path": pathlib.Path("/home/edgy")}}
-		test_str = """[root]
+	o = {"root": {"path": pathlib.Path("/home/edgy")}}
+	test_str = """[root]
 path = "/home/edgy"
 """
-		assert test_str == dumps(o, encoder=TomlPathlibEncoder())
+	assert test_str == dumps(o, encoder=TomlPathlibEncoder())
 
 
 def test_deepcopy_timezone():
-	# stdlib
-	import copy
-
 	o = loads("dob = 1979-05-24T07:32:00-08:00")
 	o2 = copy.deepcopy(o)
 	assert o2["dob"] == o["dob"]
