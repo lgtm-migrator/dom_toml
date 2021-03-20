@@ -40,5 +40,6 @@ known_third_party = [
     "pytest_cov",
     "pytest_randomly",
     "pytest_timeout",
+    "toml",
 ]
 known_first_party = "dom_toml"

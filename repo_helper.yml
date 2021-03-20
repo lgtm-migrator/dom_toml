@@ -9,8 +9,9 @@ username: "domdfcoding"
 license: 'MIT'
 short_desc: "Dom's custom encoder for Tom's Obvious, Minimal Language."
 
+min_coverage: 95
 sphinx_html_theme: furo
-mypy_version: "0.800"
+mypy_version: "0.812"
 
 # Versions to run tests for
 python_versions:
