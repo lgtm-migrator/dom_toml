@@ -38,7 +38,7 @@ Dom's custom encoder for Tom's Obvious, Minimal Language.
 
 # stdlib
 import re
-from typing import Any, Dict, Mapping, MutableMapping, Optional, Type, TypeVar
+from typing import Any, Mapping, MutableMapping, Optional, Type, TypeVar
 
 # 3rd party
 import toml
@@ -46,7 +46,6 @@ from domdf_python_tools.paths import PathPlus
 from domdf_python_tools.stringlist import StringList
 from domdf_python_tools.typing import PathLike
 from toml.decoder import InlineTableDict
-from toml.encoder import _dump_str  # type: ignore
 
 __author__: str = "Dominic Davis-Foster"
 __copyright__: str = "2021 Dominic Davis-Foster"
@@ -233,3 +232,39 @@ def load(
 			dict_=dict_,
 			decoder=decoder,
 			)
+
+
+def _dump_str(v):  # pragma: no cover
+	if v[0] == 'u':
+		v = v[1:]
+	singlequote = v.startswith("'")
+	if singlequote or v.startswith('"'):
+		v = v[1:-1]
+	if singlequote:
+		v = v.replace("\\'", "'")
+		v = v.replace('"', '\\"')
+	v = v.split("\\x")
+
+	# print([x.encode("UTF-8") for x in v])
+	[x.encode("UTF-8") for x in v]
+
+	while len(v) > 1:
+		i = -1
+		if not v[0]:
+			v = v[1:]
+		v[0] = v[0].replace("\\\\", "\\")
+		# No, I don't know why != works and == breaks
+		joinx = v[0][i] != "\\"
+		while v[0][:i] and v[0][i] == "\\":
+			joinx = not joinx
+			i -= 1
+		if joinx:
+			joiner = "x"
+		else:
+			joiner = "u00"
+		v = [v[0] + joiner + v[1]] + v[2:]
+	return str('"' + v[0] + '"')
+
+
+# Fix unicode characters on PyPy
+toml.encoder._dump_str = _dump_str  # type: ignore

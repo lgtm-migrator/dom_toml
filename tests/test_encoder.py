@@ -27,6 +27,7 @@ array_of_tables = {"key": [
 		"data",
 		[
 				pytest.param({"dotted.key": "string"}, id="dotted.key"),
+				pytest.param({"key": "☃🚀📦"}, id="unicode"),
 				pytest.param({"key": "string"}, id="string_value"),
 				pytest.param({"key": ["list"]}, id="list_value"),
 				pytest.param({
