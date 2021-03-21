@@ -102,24 +102,37 @@ def test_dict_decoder():
 	assert isinstance(loads(TEST_STR, decoder=test_dict_decoder), TestDict)
 
 
-def test_inline_dict():
+@pytest.mark.parametrize(
+		"encoder_cls",
+		[
+				pytest.param(TomlPreserveInlineDictEncoder, id="type"),
+				pytest.param(TomlPreserveInlineDictEncoder(), id="instance"),
+				]
+		)
+def test_inline_dict(encoder_cls):
 
 	class TestDict(dict, InlineTableDict):
 		pass
 
-	encoder = TomlPreserveInlineDictEncoder()
 	t = copy.deepcopy(TEST_DICT)
 	t['d'] = TestDict()
 	t['d']['x'] = "abc"
-	o: Dict[str, Any] = loads(dumps(t, encoder=encoder))
-	assert o == loads(dumps(o, encoder=encoder))
+	o: Dict[str, Any] = loads(dumps(t, encoder=encoder_cls))
+	assert o == loads(dumps(o, encoder=encoder_cls))
 
 
-def test_array_sep():
-	encoder = TomlArraySeparatorEncoder(separator=",\t")
+@pytest.mark.parametrize(
+		"encoder_cls",
+		[
+				pytest.param(TomlArraySeparatorEncoder, id="type"),
+				pytest.param(TomlArraySeparatorEncoder(), id="instance"),
+				pytest.param(TomlArraySeparatorEncoder(separator=",\t"), id="instance_tab"),
+				]
+		)
+def test_array_sep(encoder_cls):
 	d = {'a': [1, 2, 3]}
-	o: Dict[str, Any] = loads(dumps(d, encoder=encoder))
-	assert o == loads(dumps(o, encoder=encoder))
+	o: Dict[str, Any] = loads(dumps(d, encoder=encoder_cls))
+	assert o == loads(dumps(o, encoder=encoder_cls))
 
 
 def test_numpy_floats():
@@ -156,11 +169,23 @@ def test_numpy_ints():
 	assert o == loads(dumps(o, encoder=encoder))
 
 
-def test_ordered():
-	encoder = toml_ordered.TomlOrderedEncoder()
-	decoder = toml_ordered.TomlOrderedDecoder()
-	o: Dict[str, Any] = loads(dumps(TEST_DICT, encoder=encoder), decoder=decoder)
-	assert o == loads(dumps(TEST_DICT, encoder=encoder), decoder=decoder)
+@pytest.mark.parametrize(
+		"encoder_cls",
+		[
+				pytest.param(toml_ordered.TomlOrderedEncoder, id="type"),
+				pytest.param(toml_ordered.TomlOrderedEncoder(), id="instance"),
+				]
+		)
+@pytest.mark.parametrize(
+		"decoder_cls",
+		[
+				pytest.param(toml_ordered.TomlOrderedDecoder, id="type"),
+				pytest.param(toml_ordered.TomlOrderedDecoder(), id="instance"),
+				]
+		)
+def test_ordered(encoder_cls, decoder_cls):
+	o: Dict[str, Any] = loads(dumps(TEST_DICT, encoder=encoder_cls), decoder=decoder_cls)
+	assert o == loads(dumps(TEST_DICT, encoder=encoder_cls), decoder=decoder_cls)
 
 
 def test_tuple():
@@ -230,12 +255,18 @@ def test_commutativity():
 	assert o == loads(dumps(o))
 
 
-def test_pathlib():
+@pytest.mark.parametrize(
+		"encoder_cls", [
+				pytest.param(TomlPathlibEncoder, id="type"),
+				pytest.param(TomlPathlibEncoder(), id="instance"),
+				]
+		)
+def test_pathlib(encoder_cls):
 	o = {"root": {"path": pathlib.Path("/home/edgy")}}
 	test_str = f"""[root]
 path = "{os.sep}home{os.sep}edgy"
 """
-	assert test_str == dumps(o, encoder=TomlPathlibEncoder())
+	assert test_str == dumps(o, encoder=encoder_cls)
 
 
 def test_deepcopy_timezone():

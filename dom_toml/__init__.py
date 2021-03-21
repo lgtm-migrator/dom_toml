@@ -38,7 +38,7 @@ Dom's custom encoder for Tom's Obvious, Minimal Language.
 
 # stdlib
 import re
-from typing import Any, Mapping, MutableMapping, Optional, Type, TypeVar
+from typing import Any, Mapping, MutableMapping, Type, TypeVar, Union
 
 # 3rd party
 import toml
@@ -158,7 +158,10 @@ class TomlEncoder(toml.TomlEncoder):
 		return retstr.lstrip(), retdict
 
 
-def dumps(data: Mapping[str, Any], encoder: Optional[toml.TomlEncoder] = None) -> str:
+def dumps(
+		data: Mapping[str, Any],
+		encoder: Union[Type[toml.TomlEncoder], toml.TomlEncoder, None] = None,
+		) -> str:
 	"""
 	Convert ``data`` to a TOML string.
 
@@ -168,10 +171,17 @@ def dumps(data: Mapping[str, Any], encoder: Optional[toml.TomlEncoder] = None) -
 	:returns: A string containing the ``TOML`` corresponding to ``data``.
 	"""
 
+	if isinstance(encoder, type):
+		encoder = encoder()
+
 	return toml.dumps(data, encoder=encoder)
 
 
-def dump(data: Mapping[str, Any], filename: PathLike, encoder: Optional[toml.TomlEncoder] = None) -> str:
+def dump(
+		data: Mapping[str, Any],
+		filename: PathLike,
+		encoder: Union[Type[toml.TomlEncoder], toml.TomlEncoder, None] = None,
+		) -> str:
 	"""
 	Writes out ``data`` as TOML to the given file.
 
@@ -191,7 +201,7 @@ def dump(data: Mapping[str, Any], filename: PathLike, encoder: Optional[toml.Tom
 def loads(
 		s,
 		dict_: Type[_M] = dict,  # type: ignore
-		decoder: Optional[toml.TomlDecoder] = None,
+		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder, None] = None,
 		) -> _M:
 	r"""
 	Parse the given string as TOML.
@@ -203,6 +213,9 @@ def loads(
 	:returns: A mapping containing the ``TOML`` data.
 	"""
 
+	if isinstance(decoder, type):
+		decoder = decoder()
+
 	return toml.loads(  # type: ignore
 			s,
 			_dict=dict_,
@@ -213,7 +226,7 @@ def loads(
 def load(
 		filename: PathLike,
 		dict_: Type[_M] = dict,  # type: ignore
-		decoder: Optional[toml.TomlDecoder] = None,
+		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder, None] = None,
 		) -> _M:
 	r"""
 	Parse TOML from the given file.
