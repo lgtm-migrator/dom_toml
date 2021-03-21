@@ -232,8 +232,8 @@ def test_commutativity():
 
 def test_pathlib():
 	o = {"root": {"path": pathlib.Path("/home/edgy")}}
-	test_str = """[root]
-path = "/home/edgy"
+	test_str = f"""[root]
+path = "{os.sep}home{os.sep}edgy"
 """
 	assert test_str == dumps(o, encoder=TomlPathlibEncoder())
 
