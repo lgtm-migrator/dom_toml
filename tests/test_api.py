@@ -36,6 +36,7 @@ import os
 import pathlib
 from collections import OrderedDict
 from decimal import Decimal
+from typing import Any, Dict, MutableMapping
 
 # 3rd party
 import pytest
@@ -60,33 +61,27 @@ b = 1\r
 c = 2
 """
 
-TEST_DICT = {'a': {'b': 1, 'c': 2}}
-
-
-def test_bug_148():
-	assert 'a = "\\u0064"\n' == dumps({'a': "\\x64"})
-	assert 'a = "\\\\x64"\n' == dumps({'a': "\\\\x64"})
-	assert 'a = "\\\\\\u0064"\n' == dumps({'a': "\\\\\\x64"})
+TEST_DICT: Dict[str, Any] = {'a': {'b': 1, 'c': 2}}
 
 
 def test_bug_196():
 	d = datetime.datetime.now()
 	bug_dict = {'x': d}
-	round_trip_bug_dict = loads(dumps(bug_dict))
+	round_trip_bug_dict: Dict[str, Any] = loads(dumps(bug_dict))
 	assert round_trip_bug_dict == bug_dict
 	assert round_trip_bug_dict['x'] == bug_dict['x']
 
 
 def test_circular_ref():
 	a = {}
-	b = {}
+	b: MutableMapping[str, Any] = {}
 	b['c'] = 4
 	b["self"] = b
 	a['b'] = b
-	with pytest.raises(ValueError):
+	with pytest.raises(ValueError, match="Circular reference detected"):
 		dumps(a)
 
-	with pytest.raises(ValueError):
+	with pytest.raises(ValueError, match="Circular reference detected"):
 		dumps(b)
 
 
@@ -116,14 +111,14 @@ def test_inline_dict():
 	t = copy.deepcopy(TEST_DICT)
 	t['d'] = TestDict()
 	t['d']['x'] = "abc"
-	o = loads(dumps(t, encoder=encoder))
+	o: Dict[str, Any] = loads(dumps(t, encoder=encoder))
 	assert o == loads(dumps(o, encoder=encoder))
 
 
 def test_array_sep():
 	encoder = TomlArraySeparatorEncoder(separator=",\t")
 	d = {'a': [1, 2, 3]}
-	o = loads(dumps(d, encoder=encoder))
+	o: Dict[str, Any] = loads(dumps(d, encoder=encoder))
 	assert o == loads(dumps(o, encoder=encoder))
 
 
@@ -132,7 +127,7 @@ def test_numpy_floats():
 
 	encoder = TomlNumpyEncoder()
 	d = {'a': np.array([1, .3], dtype=np.float64)}
-	o = loads(dumps(d, encoder=encoder))
+	o: Dict[str, Any] = loads(dumps(d, encoder=encoder))
 	assert o == loads(dumps(o, encoder=encoder))
 
 	d = {'a': np.array([1, .3], dtype=np.float32)}
@@ -149,7 +144,7 @@ def test_numpy_ints():
 
 	encoder = TomlNumpyEncoder()
 	d = {'a': np.array([1, 3], dtype=np.int64)}
-	o = loads(dumps(d, encoder=encoder))
+	o: Dict[str, Any] = loads(dumps(d, encoder=encoder))
 	assert o == loads(dumps(o, encoder=encoder))
 
 	d = {'a': np.array([1, 3], dtype=np.int32)}
@@ -164,13 +159,13 @@ def test_numpy_ints():
 def test_ordered():
 	encoder = toml_ordered.TomlOrderedEncoder()
 	decoder = toml_ordered.TomlOrderedDecoder()
-	o = loads(dumps(TEST_DICT, encoder=encoder), decoder=decoder)
+	o: Dict[str, Any] = loads(dumps(TEST_DICT, encoder=encoder), decoder=decoder)
 	assert o == loads(dumps(TEST_DICT, encoder=encoder), decoder=decoder)
 
 
 def test_tuple():
 	d = {'a': (3, 4)}
-	o = loads(dumps(d))
+	o: Dict[str, Any] = loads(dumps(d))
 	assert o == loads(dumps(o))
 
 
@@ -178,7 +173,7 @@ def test_decimal():
 	PLACES = Decimal(10)**-4
 
 	d = {'a': Decimal("0.1")}
-	o = loads(dumps(d))
+	o: Dict[str, Any] = loads(dumps(d))
 	assert o == loads(dumps(o))
 	assert Decimal(o['a']).quantize(PLACES) == d['a'].quantize(PLACES)
 
@@ -186,16 +181,16 @@ def test_decimal():
 		loads(2)
 
 	with pytest.raises(TypeError, match="expected str, bytes or os.PathLike object, not int"):
-		load(2)
+		load(2)  # type: ignore
 
 	with pytest.raises(TypeError, match="expected str, bytes or os.PathLike object, not list"):
-		load([])
+		load([])  # type: ignore
 
 	with pytest.raises(
 			TypeError,
 			match="argument should be a str object or an os.PathLike object returning str, not <class 'bytes'>"
 			):
-		load(b"test.toml")
+		load(b"test.toml")  # type: ignore
 
 
 class FakeFile:
@@ -226,12 +221,12 @@ def test_paths():
 def test_nonexistent():
 	load(test_toml)
 
-	with pytest.raises(FileNotFoundError, match="No such file or directory: 'nonexist.toml'"):
+	with pytest.raises(FileNotFoundError, match=r"No such file or directory: .*'nonexist.toml'\)?"):
 		load("nonexist.toml")
 
 
 def test_commutativity():
-	o = loads(dumps(TEST_DICT))
+	o: Dict[str, Any] = loads(dumps(TEST_DICT))
 	assert o == loads(dumps(o))
 
 
@@ -244,7 +239,7 @@ path = "/home/edgy"
 
 
 def test_deepcopy_timezone():
-	o = loads("dob = 1979-05-24T07:32:00-08:00")
-	o2 = copy.deepcopy(o)
+	o: Dict[str, Any] = loads("dob = 1979-05-24T07:32:00-08:00")
+	o2: Dict[str, Any] = copy.deepcopy(o)
 	assert o2["dob"] == o["dob"]
 	assert o2["dob"] is not o["dob"]
