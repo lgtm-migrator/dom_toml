@@ -252,14 +252,14 @@ def _dump_str(v):  # pragma: no cover
 		i = -1
 		if not v[0]:
 			v = v[1:]
-		v[0] = v[0].replace("\\\\", "\\")
+		v[0] = v[0].replace("\\\\", '\\')
 		# No, I don't know why != works and == breaks
-		joinx = v[0][i] != "\\"
-		while v[0][:i] and v[0][i] == "\\":
+		joinx = v[0][i] != '\\'
+		while v[0][:i] and v[0][i] == '\\':
 			joinx = not joinx
 			i -= 1
 		if joinx:
-			joiner = "x"
+			joiner = 'x'
 		else:
 			joiner = "u00"
 		v = [v[0] + joiner + v[1]] + v[2:]
