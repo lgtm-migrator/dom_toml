@@ -29,7 +29,7 @@ array_of_tables = {"key": [
 				pytest.param({"dotted.key": "string"}, id="dotted.key"),
 				pytest.param({"key": "☃🚀📦"}, id="unicode"),
 				pytest.param({"key": "string"}, id="string_value"),
-				pytest.param({"key": ["list"]}, id="list_value"),
+				pytest.param({"key": ["list", 'double ""', "single ''"]}, id="list_value"),
 				pytest.param({
 						"key": [
 								"insure",
@@ -46,7 +46,9 @@ array_of_tables = {"key": [
 								"recall",
 								"mother",
 								"festive",
-								"cup"
+								"cup",
+								'double ""',
+								"single ''",
 								]
 						},
 								id="long_list"),

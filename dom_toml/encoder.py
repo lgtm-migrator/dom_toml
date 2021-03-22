@@ -153,36 +153,22 @@ class TomlEncoder(toml.TomlEncoder):
 		return retstr.lstrip(), retdict
 
 
-def _dump_str(v):  # pragma: no cover
-	if v[0] == 'u':
-		v = v[1:]
-	singlequote = v.startswith("'")
-	if singlequote or v.startswith('"'):
-		v = v[1:-1]
-	if singlequote:
-		v = v.replace("\\'", "'")
-		v = v.replace('"', '\\"')
-	v = v.split("\\x")
+_SINGLE = "'"
+_DOUBLE = '"'
 
-	# print([x.encode("UTF-8") for x in v])
-	[x.encode("UTF-8") for x in v]
 
-	while len(v) > 1:
-		i = -1
-		if not v[0]:
-			v = v[1:]
-		v[0] = v[0].replace("\\\\", '\\')
-		# No, I don't know why != works and == breaks
-		joinx = v[0][i] != '\\'
-		while v[0][:i] and v[0][i] == '\\':
-			joinx = not joinx
-			i -= 1
-		if joinx:
-			joiner = 'x'
-		else:
-			joiner = "u00"
-		v = [v[0] + joiner + v[1]] + v[2:]
-	return str('"' + v[0] + '"')
+def _dump_str(v):
+	v = str(v)
+
+	if _SINGLE in v and _DOUBLE not in v:
+		quote_char = _DOUBLE
+	elif _DOUBLE in v and _SINGLE not in v:
+		quote_char = _SINGLE
+	else:
+		quote_char = _DOUBLE
+		v = v.replace(_DOUBLE, f"\\\\{_DOUBLE}")
+
+	return f"{quote_char}{v}{quote_char}"
 
 
 # Fix unicode characters on PyPy

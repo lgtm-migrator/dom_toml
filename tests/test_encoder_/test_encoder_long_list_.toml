@@ -14,4 +14,6 @@ key = [
     "mother",
     "festive",
     "cup",
+    'double ""',
+    "single ''",
 ]
