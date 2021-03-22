@@ -151,6 +151,7 @@ Contents
 	:caption: API Reference
 	:glob:
 
+	api/dom_toml
 	api/*
 
 .. toctree::

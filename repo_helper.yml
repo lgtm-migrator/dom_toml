@@ -7,9 +7,9 @@ email: "dominic@davis-foster.co.uk"
 version: "0.1.1"
 username: "domdfcoding"
 license: 'MIT'
-short_desc: "Dom's custom encoder for Tom's Obvious, Minimal Language."
+short_desc: "Dom's tools for Tom's Obvious, Minimal Language."
 
-min_coverage: 95
+min_coverage: 97
 sphinx_html_theme: furo
 mypy_version: "0.812"
 

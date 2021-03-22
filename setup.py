@@ -14,7 +14,7 @@ sys.path.append('.')
 from __pkginfo__ import *  # pylint: disable=wildcard-import
 
 setup(
-		description="Dom's custom encoder for Tom's Obvious, Minimal Language.",
+		description="Dom's tools for Tom's Obvious, Minimal Language.",
 		extras_require=extras_require,
 		install_requires=install_requires,
 		py_modules=[],

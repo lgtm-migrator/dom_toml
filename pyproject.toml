@@ -5,7 +5,7 @@ build-backend = "setuptools.build_meta"
 [project]
 name = "dom_toml"
 version = "0.1.1"
-description = "Dom's custom encoder for Tom's Obvious, Minimal Language."
+description = "Dom's tools for Tom's Obvious, Minimal Language."
 readme = "README.rst"
 keywords = [ "toml", "serialize", "configuration",]
 dynamic = [ "requires-python", "classifiers", "dependencies",]

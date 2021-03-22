@@ -4,7 +4,7 @@ dom_toml
 
 .. start short_desc
 
-**Dom's custom encoder for Tom's Obvious, Minimal Language.**
+**Dom's tools for Tom's Obvious, Minimal Language.**
 
 .. end short_desc
 

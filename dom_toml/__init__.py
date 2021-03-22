@@ -2,7 +2,7 @@
 #
 #  __init__.py
 """
-Dom's custom encoder for Tom's Obvious, Minimal Language.
+Dom's tools for Tom's Obvious, Minimal Language.
 """
 #
 #  Copyright © 2021 Dominic Davis-Foster <dominic@davis-foster.co.uk>
@@ -37,15 +37,15 @@ Dom's custom encoder for Tom's Obvious, Minimal Language.
 #
 
 # stdlib
-import re
-from typing import Any, Mapping, MutableMapping, Type, TypeVar, Union
+from typing import Any, Dict, Mapping, MutableMapping, Type, TypeVar, Union, overload
 
 # 3rd party
 import toml
 from domdf_python_tools.paths import PathPlus
-from domdf_python_tools.stringlist import StringList
 from domdf_python_tools.typing import PathLike
-from toml.decoder import InlineTableDict
+
+# this package
+from dom_toml.encoder import TomlEncoder
 
 __author__: str = "Dominic Davis-Foster"
 __copyright__: str = "2021 Dominic Davis-Foster"
@@ -56,106 +56,6 @@ __email__: str = "dominic@davis-foster.co.uk"
 __all__ = ["TomlEncoder", "dumps", "loads", "dump", "load", "_M"]
 
 _M = TypeVar("_M", bound=MutableMapping[str, Any])
-
-_section_disallowed_re = re.compile(r'^[A-Za-z0-9_-]+$')
-
-
-class TomlEncoder(toml.TomlEncoder):
-	"""
-	Customised TOML encoder which wraps long lists onto multiple lines
-	and adds a blank line before arrays of tables.
-	"""  # noqa: D400
-
-	# The maximum width of the list **value**, after which it will be wrapped.
-	max_width: int = 100
-
-	def dump_list(self, v):  # noqa: D102
-		single_line = super().dump_list(v)
-
-		if len(single_line) <= self.max_width:
-			return single_line
-
-		retval = StringList(['['])
-
-		with retval.with_indent("    ", 1):
-			for u in v:
-				retval.append(f"{str(self.dump_value(u))},")
-
-		retval.append(']')
-
-		return str(retval)
-
-	def dump_sections(self, o, sup):  # noqa: D102
-		retstr = ''
-
-		if sup != '' and sup[-1] != '.':
-			sup += '.'
-
-		arraystr = StringList()
-		arraystr.indent_type = ' ' * 4
-
-		retdict = self._dict()  # type: ignore
-
-		for section in o:
-			section = str(section)
-			qsection = section
-
-			if not _section_disallowed_re.match(section):
-				qsection = _dump_str(section)
-
-			if not isinstance(o[section], dict):
-				arrayoftables = False
-
-				if isinstance(o[section], list):
-					for a in o[section]:
-						if isinstance(a, dict):
-							arrayoftables = True
-
-				if arrayoftables:
-					for a in o[section]:
-						arraytabstr = '\n'
-
-						# if arraystr:
-						arraystr.blankline(ensure_single=True)
-
-						arraystr.append(f"[[{sup}{qsection}]]")
-
-						s, d = self.dump_sections(a, sup + qsection)
-
-						if s:
-							if s[0] == '[':
-								arraytabstr += s
-							else:
-								arraystr.append(s)
-
-						while d:  # pragma: no cover
-							newd = self._dict()  # type: ignore
-
-							for dsec in d:
-								s1, d1 = self.dump_sections(d[dsec], f"{sup}{qsection}.{dsec}")
-
-								if s1:
-									arraytabstr += f'[{sup}{qsection}.{dsec}]\n{s1}'
-
-								for s1 in d1:
-									newd[f"{dsec}.{s1}"] = d1[s1]
-
-							d = newd
-
-						arraystr.append(arraytabstr)
-				else:
-					if o[section] is not None:
-						retstr += f"{qsection} = {self.dump_value(o[section])}\n"
-
-			elif self.preserve and isinstance(o[section], InlineTableDict):
-				retstr += f"{qsection} = {self.dump_inline_table(o[section])}"
-
-			else:
-				retdict[qsection] = o[section]
-
-		retstr += str(arraystr)
-
-		return retstr.lstrip(), retdict
 
 
 def dumps(
@@ -198,6 +98,22 @@ def dump(
 	return as_toml
 
 
+@overload
+def loads(
+		s,
+		dict_: Type[Dict[str, Any]] = ...,
+		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder, None] = None,
+		) -> Dict[str, Any]: ...
+
+
+@overload
+def loads(
+		s,
+		dict_: Type[_M],
+		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder, None] = None,
+		) -> _M: ...
+
+
 def loads(
 		s,
 		dict_: Type[_M] = dict,  # type: ignore
@@ -221,6 +137,22 @@ def loads(
 			_dict=dict_,
 			decoder=decoder,
 			)
+
+
+@overload
+def load(
+		filename: PathLike,
+		dict_: Type[Dict[str, Any]] = ...,
+		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder, None] = None,
+		) -> Dict[str, Any]: ...
+
+
+@overload
+def load(
+		filename: PathLike,
+		dict_: Type[_M],
+		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder, None] = None,
+		) -> _M: ...
 
 
 def load(
