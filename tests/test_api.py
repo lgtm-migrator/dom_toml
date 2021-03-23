@@ -40,6 +40,7 @@ from typing import Any, Dict, MutableMapping
 
 # 3rd party
 import pytest
+import toml
 from toml import (
 		TomlArraySeparatorEncoder,
 		TomlDecoder,
@@ -263,10 +264,12 @@ def test_commutativity():
 		)
 def test_pathlib(encoder_cls):
 	o = {"root": {"path": pathlib.Path("/home/edgy")}}
+	sep = "\\\\" if os.sep == '\\' else '/'
 	test_str = f"""[root]
-path = "{os.sep}home{os.sep}edgy"
+path = "{sep}home{sep}edgy"
 """
 	assert test_str == dumps(o, encoder=encoder_cls)
+	toml.loads(test_str)
 
 
 def test_deepcopy_timezone():
