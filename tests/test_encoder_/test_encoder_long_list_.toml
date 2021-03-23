@@ -16,4 +16,10 @@ key = [
     "cup",
     'double ""',
     "single ''",
+    "newline\n",
+    "formfeed\f",
+    "carriage_return\r",
+    "backslash\\",
+    "backspace\b",
+    "tab\t",
 ]

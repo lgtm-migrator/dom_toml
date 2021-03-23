@@ -1,5 +1,6 @@
 # 3rd party
 import pytest
+import toml
 from coincidence import AdvancedFileRegressionFixture
 
 # this package
@@ -49,17 +50,35 @@ array_of_tables = {"key": [
 								"cup",
 								'double ""',
 								"single ''",
+								"newline\n",
+								"formfeed\f",
+								"carriage_return\r",
+								"backslash\\",
+								"backspace\b",
+								"tab\t",
 								]
 						},
 								id="long_list"),
-				pytest.param({"key": ("list", )}, id="tuple_value"),
 				pytest.param({"key": {"dict": "dict_value"}}, id="dict_value"),
 				pytest.param(array_of_tables, id="array_of_tables"),
 				pytest.param({"section": {"key": "string"}}, id="section_string_value"),
 				pytest.param({"section": {"key": ["list"]}}, id="section_list_value"),
-				pytest.param({"section": {"key": ("list", )}}, id="section_tuple_value"),
 				pytest.param({"project": PEP621}, id="pep621"),
 				]
 		)
 def test_encoder(data, advanced_file_regression: AdvancedFileRegressionFixture):
-	advanced_file_regression.check(dumps(data, encoder=TomlEncoder(dict)), extension=".toml")
+	as_toml = dumps(data, encoder=TomlEncoder(dict))
+	advanced_file_regression.check(as_toml, extension=".toml")
+	assert toml.loads(as_toml) == data
+
+
+@pytest.mark.parametrize(
+		"data",
+		[
+				pytest.param({"key": ("list", )}, id="tuple_value"),
+				pytest.param({"section": {"key": ("list", )}}, id="section_tuple_value"),
+				]
+		)
+def test_encoder_tuples(data, advanced_file_regression: AdvancedFileRegressionFixture):
+	as_toml = dumps(data, encoder=TomlEncoder(dict))
+	advanced_file_regression.check(as_toml, extension=".toml")

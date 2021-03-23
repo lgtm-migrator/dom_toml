@@ -155,6 +155,14 @@ class TomlEncoder(toml.TomlEncoder):
 
 _SINGLE = "'"
 _DOUBLE = '"'
+_translation_table = {
+		8: "\\b",
+		9: "\\t",
+		10: "\\n",
+		12: "\\f",
+		13: "\\r",
+		92: "\\\\",
+		}
 
 
 def _dump_str(v):
@@ -167,6 +175,8 @@ def _dump_str(v):
 	else:
 		quote_char = _DOUBLE
 		v = v.replace(_DOUBLE, f"\\\\{_DOUBLE}")
+
+	v = v.translate(_translation_table)
 
 	return f"{quote_char}{v}{quote_char}"
 
