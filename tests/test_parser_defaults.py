@@ -1,5 +1,5 @@
 # stdlib
-from typing import Dict, Iterable, List, Type
+from typing import Dict, List, Type
 
 # 3rd party
 import pytest
@@ -8,15 +8,29 @@ from domdf_python_tools.paths import PathPlus
 
 # this package
 import dom_toml
-from dom_toml import load
 from dom_toml.decoder import TomlPureDecoder
-from dom_toml.parser import TOML_TYPES, AbstractConfigParser, construct_path
+from dom_toml.parser import TOML_TYPES, AbstractConfigParser
 
 
 class PEP621Parser(AbstractConfigParser):
 	"""
 	Parser for :pep:`621` metadata from ``pyproject.toml``.
 	"""
+
+	defaults = {
+			"description": None,
+			}
+
+	factories = {
+			"keywords": list,
+			"classifiers": list,
+			"urls": dict,
+			"scripts": dict,
+			"gui_scripts": dict,
+			"entry_points": dict,
+			"dependencies": list,
+			"optional-dependencies": dict,
+			}
 
 	def parse_description(self, config: Dict[str, TOML_TYPES]) -> str:
 		"""
@@ -249,10 +263,8 @@ authors = [{{name = "Łukasz Langa"}}]
 				]
 		)
 def test_parse_config_errors(config: str, expects: Type[Exception], match: str, tmp_pathplus: PathPlus):
-	(tmp_pathplus / "pyproject.toml").write_clean(config)
-
 	with pytest.raises(expects, match=match):
-		PEP621Parser().parse(load(tmp_pathplus / "pyproject.toml")["project"])
+		PEP621Parser().parse(dom_toml.loads(config)["project"], set_defaults=True)
 
 
 @pytest.mark.parametrize(
@@ -273,23 +285,9 @@ def test_parse_valid_config(
 		advanced_data_regression: AdvancedDataRegressionFixture,
 		):
 	(tmp_pathplus / "pyproject.toml").write_clean(toml_config)
-	config = PEP621Parser().parse(dom_toml.loads(toml_config, decoder=TomlPureDecoder)["project"])
+	config = PEP621Parser().parse(
+			dom_toml.loads(toml_config, decoder=TomlPureDecoder)["project"],
+			set_defaults=True,
+			)
+
 	advanced_data_regression.check(config)
-
-
-@pytest.mark.parametrize(
-		"path, expected",
-		[
-				(["foo"], "foo"),
-				(iter(["foo"]), "foo"),
-				(("foo", ), "foo"),
-				(["foo", "bar"], "foo.bar"),
-				(iter(["foo", "bar"]), "foo.bar"),
-				(("foo", "bar"), "foo.bar"),
-				(["foo", "hello world"], 'foo."hello world"'),
-				(iter(["foo", "hello world"]), 'foo."hello world"'),
-				(("foo", "hello world"), 'foo."hello world"'),
-				]
-		)
-def test_construct_path(path: Iterable[str], expected: str):
-	assert construct_path(path) == expected

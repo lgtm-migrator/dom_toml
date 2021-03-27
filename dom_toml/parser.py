@@ -30,7 +30,7 @@ Abstract base class for TOML configuration parsers.
 
 # stdlib
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterable, List, Tuple, Type, Union
+from typing import Any, Callable, ClassVar, Dict, Iterable, List, Tuple, Type, TypeVar, Union
 
 # 3rd party
 import toml
@@ -56,10 +56,47 @@ def construct_path(path: Iterable[str]) -> str:
 	return '.'.join([toml.dumps({elem: 0})[:-5] for elem in path])
 
 
+_C = TypeVar("_C", bound=Callable)
+
+
 class AbstractConfigParser(ABC):
 	"""
 	Abstract base class for TOML configuration parsers.
 	"""
+
+	defaults: ClassVar[Dict[str, Any]]
+	"""
+	A mapping of key names to default values.
+
+	.. versionadded:: 0.3.0
+	"""
+
+	factories: ClassVar[Dict[str, Callable[..., Any]]]
+	"""
+	A mapping of key names to default value factories.
+
+	.. versionadded:: 0.3.0
+
+	.. note:: If both a default and a factory are defined for a key the factory takes precedence.
+
+	.. note::
+
+		``defaults`` and ``factories`` are reset for each subclass.
+		To disable this behaviour set the ``inherit_defaults`` keyword argument on the class:
+
+		.. code-block:: python
+
+			class MyParser(AbstractConfigParser, inherit_default=True):
+				pass
+	"""
+
+	def __init_subclass__(cls, **kwargs):
+		if not kwargs.get("inherit_defaults", False):
+			if "defaults" not in cls.__dict__:
+				cls.defaults = {}
+
+			if "factories" not in cls.__dict__:
+				cls.factories = {}
 
 	@staticmethod
 	def assert_type(
@@ -132,7 +169,11 @@ class AbstractConfigParser(ABC):
 
 		raise NotImplementedError
 
-	def parse(self, config: Dict[str, TOML_TYPES]) -> Dict[str, TOML_TYPES]:
+	def parse(
+			self,
+			config: Dict[str, TOML_TYPES],
+			set_defaults: bool = False,
+			) -> Dict[str, TOML_TYPES]:
 		r"""
 		Parse the TOML configuration.
 
@@ -157,6 +198,12 @@ class AbstractConfigParser(ABC):
 		Once all keys have been parsed the configuration is returned.
 
 		:param config:
+		:param set_defaults: If :py:obj:`True`, the values in :attr:`.AbstractConfigParser.defaults`
+			and :attr:`.AbstractConfigParser.factories` will be set as defaults for the returned mapping.
+
+		.. versionchanged:: 0.3.0
+
+			Added the ``set_defaults`` keyword argument.
 		"""
 
 		parsed_config = {}
@@ -171,5 +218,13 @@ class AbstractConfigParser(ABC):
 
 			elif key in config:
 				parsed_config[key] = config[key]
+
+		if set_defaults:
+			for key, value in self.defaults.items():
+				parsed_config.setdefault(key, value)
+
+			for key, factory in self.factories.items():
+				value = factory()
+				parsed_config.setdefault(key, value)
 
 		return parsed_config
