@@ -50,6 +50,7 @@ array_of_tables = {"key": [
 								"cup",
 								'double ""',
 								"single ''",
+								"mixed '\"",
 								"newline\n",
 								"formfeed\f",
 								"carriage_return\r",

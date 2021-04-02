@@ -167,6 +167,7 @@ _translation_table = {
 
 def _dump_str(v):
 	v = str(v)
+	v = v.translate(_translation_table)
 
 	if _SINGLE in v and _DOUBLE not in v:
 		quote_char = _DOUBLE
@@ -174,9 +175,7 @@ def _dump_str(v):
 		quote_char = _SINGLE
 	else:
 		quote_char = _DOUBLE
-		v = v.replace(_DOUBLE, f"\\\\{_DOUBLE}")
-
-	v = v.translate(_translation_table)
+		v = v.replace(_DOUBLE, f"\\{_DOUBLE}")
 
 	return f"{quote_char}{v}{quote_char}"
 
