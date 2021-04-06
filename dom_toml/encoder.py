@@ -40,10 +40,11 @@ Dom's custom encoder for Tom's Obvious, Minimal Language.
 
 # stdlib
 import re
+from typing import Mapping, Sequence
 
 # 3rd party
 import toml
-from domdf_python_tools.stringlist import StringList
+from domdf_python_tools.stringlist import DelimitedList, StringList
 from toml.decoder import InlineTableDict
 
 __all__ = ["TomlEncoder"]
@@ -80,6 +81,20 @@ class TomlEncoder(toml.TomlEncoder):
 
 		return str(retval)
 
+	def dump_inline_table(self, section):  # noqa: D102
+		# See also: https://github.com/uiri/toml/pull/336/
+
+		if isinstance(section, Mapping):
+			val_list: DelimitedList[str] = DelimitedList([])
+
+			for k, v in section.items():
+				val_list.append(f"{k} = {self.dump_inline_table(v)}")
+
+			return f"{{ {val_list:, } }}\n"
+
+		else:
+			return str(self.dump_value(section))
+
 	def dump_sections(self, o, sup):  # noqa: D102
 		retstr = ''
 
@@ -98,12 +113,12 @@ class TomlEncoder(toml.TomlEncoder):
 			if not _section_disallowed_re.match(section):
 				qsection = _dump_str(section)
 
-			if not isinstance(o[section], dict):
+			if not isinstance(o[section], Mapping):
 				arrayoftables = False
 
-				if isinstance(o[section], list):
+				if isinstance(o[section], Sequence):
 					for a in o[section]:
-						if isinstance(a, dict):
+						if isinstance(a, Mapping):
 							arrayoftables = True
 
 				if arrayoftables:
