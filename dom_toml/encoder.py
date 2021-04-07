@@ -88,7 +88,7 @@ class TomlEncoder(toml.TomlEncoder):
 			val_list: DelimitedList[str] = DelimitedList([])
 
 			for k, v in section.items():
-				val_list.append(f"{k} = {self.dump_inline_table(v)}")
+				val_list.append(f"{k} = {self.dump_inline_table(v).rstrip()}")
 
 			return f"{{ {val_list:, } }}\n"
 
