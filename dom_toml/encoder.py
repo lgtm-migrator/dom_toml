@@ -90,7 +90,7 @@ class TomlEncoder(toml.TomlEncoder):
 			for k, v in section.items():
 				val_list.append(f"{k} = {self.dump_inline_table(v).rstrip()}")
 
-			return f"{{ {val_list:, } }}\n"
+			return f"{{ {val_list:, } }}"
 
 		else:
 			return str(self.dump_value(section))
