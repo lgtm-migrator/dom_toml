@@ -36,7 +36,7 @@ jobs:
           list-files: "json"
           filters: |
             code:
-              - '!(doc-source/**|CONTRIBUTING.rst)'
+              - '!(doc-source/**|CONTRIBUTING.rst|.imgbotconfig|.pre-commit-config.yaml|.pylintrc|.readthedocs.yml)'
 
       - name: Setup Python 🐍
         if: steps.changes.outputs.code == 'true'
