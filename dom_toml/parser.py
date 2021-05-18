@@ -62,6 +62,9 @@ _C = TypeVar("_C", bound=Callable)
 class AbstractConfigParser(ABC):
 	"""
 	Abstract base class for TOML configuration parsers.
+
+	.. autoclasssumm:: AbstractConfigParser
+	.. latex:clearpage::
 	"""
 
 	defaults: ClassVar[Dict[str, Any]]

@@ -138,6 +138,8 @@ Installation
 Contents
 ---------
 
+.. html-section::
+
 .. toctree::
 	:hidden:
 
@@ -145,18 +147,17 @@ Contents
 
 .. toctree::
 	:maxdepth: 3
-	:caption: API Reference
 	:glob:
 
 	api/dom_toml
 	api/*
-
-.. toctree::
-	:maxdepth: 3
-	:caption: Contributing
-
 	contributing
 	Source
+
+.. sidebar-links::
+	:caption: Links
+	:github:
+	:pypi: dom_toml
 
 .. start links
 

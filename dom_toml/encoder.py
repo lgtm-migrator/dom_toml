@@ -5,6 +5,7 @@
 Dom's custom encoder for Tom's Obvious, Minimal Language.
 
 .. versionadded:: 0.2.0
+.. autosummary-widths:: 6/16 10/16
 """
 #
 #  Copyright © 2021 Dominic Davis-Foster <dominic@davis-foster.co.uk>
@@ -40,7 +41,7 @@ Dom's custom encoder for Tom's Obvious, Minimal Language.
 
 # stdlib
 import re
-from typing import Mapping, Sequence
+from typing import Mapping, Sequence, Tuple
 
 # 3rd party
 import toml
@@ -65,7 +66,17 @@ class TomlEncoder(toml.TomlEncoder):
 	# The maximum width of the list **value**, after which it will be wrapped.
 	max_width: int = 100
 
-	def dump_list(self, v):  # noqa: D102
+	def dump_list(self, v) -> str:
+		"""
+		Serialize a list to TOML.
+
+		:param v:
+
+		:rtype:
+
+		.. latex:clearpage::
+		"""
+
 		single_line = super().dump_list(v)
 
 		if len(single_line) <= self.max_width:
@@ -81,7 +92,13 @@ class TomlEncoder(toml.TomlEncoder):
 
 		return str(retval)
 
-	def dump_inline_table(self, section):  # noqa: D102
+	def dump_inline_table(self, section) -> str:
+		"""
+		Preserve an inline table in its compact syntax instead of expanding into sections.
+
+		.. seealso:: https://github.com/toml-lang/toml/blob/master/toml.md#user-content-inline-table
+		"""
+
 		# See also: https://github.com/uiri/toml/pull/336/
 
 		if isinstance(section, Mapping):
@@ -95,7 +112,14 @@ class TomlEncoder(toml.TomlEncoder):
 		else:
 			return str(self.dump_value(section))
 
-	def dump_sections(self, o, sup):  # noqa: D102
+	def dump_sections(self, o, sup) -> Tuple[str, Mapping]:
+		"""
+		Serialise a dictionary into TOML sections.
+
+		:param o:
+		:param sup:
+		"""
+
 		retstr = ''
 
 		if sup != '' and sup[-1] != '.':
