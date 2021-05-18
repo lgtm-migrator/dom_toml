@@ -44,3 +44,6 @@ sphinx_conf_epilogue:
 extra_sphinx_extensions:
  - html_section
  - autosummary_widths
+
+tox_unmanaged:
+ - flake8
