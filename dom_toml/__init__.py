@@ -37,6 +37,7 @@ Dom's tools for Tom's Obvious, Minimal Language.
 #
 
 # stdlib
+import warnings
 from typing import Any, Dict, Mapping, MutableMapping, Type, TypeVar, Union, overload
 
 # 3rd party
@@ -60,19 +61,30 @@ _M = TypeVar("_M", bound=MutableMapping[str, Any])
 
 def dumps(
 		data: Mapping[str, Any],
-		encoder: Union[Type[toml.TomlEncoder], toml.TomlEncoder, None] = None,
+		encoder: Union[Type[toml.TomlEncoder], toml.TomlEncoder] = toml.TomlEncoder,
 		) -> str:
-	"""
+	r"""
 	Convert ``data`` to a TOML string.
 
 	:param data:
 	:param encoder: The :class:`toml.TomlEncoder` to use for constructing the output string.
 
 	:returns: A string containing the ``TOML`` corresponding to ``data``.
+
+	.. versionchanged:: 0.5.0
+
+		The default value for ``encoder`` changed from :py:obj:`None` to :class:`toml.TomlEncoder`
+		Explicitly passing ``encoder=None`` is deprecated and support will be removed in 1.0.0
 	"""
 
 	if isinstance(encoder, type):
 		encoder = encoder()
+	elif encoder is None:
+		warnings.warn(
+				"Passing encoder=None to 'dom_toml.dumps' is deprecated since 0.5.0 and support will be removed in 1.0.0",
+				DeprecationWarning,
+				)
+		encoder = toml.TomlEncoder()
 
 	return toml.dumps(data, encoder=encoder)
 
@@ -80,9 +92,9 @@ def dumps(
 def dump(
 		data: Mapping[str, Any],
 		filename: PathLike,
-		encoder: Union[Type[toml.TomlEncoder], toml.TomlEncoder, None] = None,
+		encoder: Union[Type[toml.TomlEncoder], toml.TomlEncoder] = toml.TomlEncoder,
 		) -> str:
-	"""
+	r"""
 	Writes out ``data`` as TOML to the given file.
 
 	:param data:
@@ -90,6 +102,13 @@ def dump(
 	:param encoder: The :class:`toml.TomlEncoder` to use for constructing the output string.
 
 	:returns: A string containing the ``TOML`` corresponding to ``data``.
+
+	.. versionchanged:: 0.5.0
+
+		The default value for ``encoder`` changed from :py:obj:`None` to :class:`toml.TomlEncoder`
+		Explicitly passing ``encoder=None`` is deprecated and support will be removed in 1.0.0
+
+	.. latex:clearpage::
 	"""
 
 	filename = PathPlus(filename)
@@ -102,7 +121,7 @@ def dump(
 def loads(
 		s,
 		dict_: Type[Dict[str, Any]] = ...,
-		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder, None] = None,
+		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder] = toml.TomlDecoder,
 		) -> Dict[str, Any]: ...
 
 
@@ -110,14 +129,14 @@ def loads(
 def loads(
 		s,
 		dict_: Type[_M],
-		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder, None] = None,
+		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder] = toml.TomlDecoder,
 		) -> _M: ...
 
 
 def loads(
 		s,
 		dict_: Type[_M] = dict,  # type: ignore
-		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder, None] = None,
+		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder] = toml.TomlDecoder,
 		) -> _M:
 	r"""
 	Parse the given string as TOML.
@@ -127,14 +146,30 @@ def loads(
 	:param decoder: The :class:`toml.TomlEncoder` to use for constructing the output string.
 
 	:returns: A mapping containing the ``TOML`` data.
+
+	.. versionchanged:: 0.5.0
+
+		* The default value for ``decoder`` changed from :py:obj:`None` to :class:`toml.TomlDecoder`
+		  Explicitly passing ``decoder=``\ :py:obj:`None` is deprecated and support will be removed in 1.0.0
+		* Instead, pass a decoder class or, if you use the ``dict_`` option,
+		  an instance of the decoder class for ``dict_``.
 	"""
 
-	if isinstance(decoder, type):
-		decoder = decoder()
+	if decoder is None:
+		warnings.warn(
+				"Passing decoder=None to 'dom_toml.loads' is deprecated since 0.5.0 and support will be removed in 1.0.0",
+				DeprecationWarning,
+				)
+		decoder = toml.TomlDecoder(dict_)
+	elif isinstance(decoder, type):
+		if dict_ is dict:
+			decoder = decoder()
+		else:
+			# TODO: deprecate this behaviour and the dict_ option in favour of passing an instance of the encoder.
+			decoder = decoder(dict_)
 
 	return toml.loads(  # type: ignore
 			s,
-			_dict=dict_,
 			decoder=decoder,
 			)
 
@@ -143,7 +178,7 @@ def loads(
 def load(
 		filename: PathLike,
 		dict_: Type[Dict[str, Any]] = ...,
-		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder, None] = None,
+		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder] = toml.TomlDecoder,
 		) -> Dict[str, Any]: ...
 
 
@@ -151,14 +186,14 @@ def load(
 def load(
 		filename: PathLike,
 		dict_: Type[_M],
-		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder, None] = None,
+		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder] = toml.TomlDecoder,
 		) -> _M: ...
 
 
 def load(
 		filename: PathLike,
 		dict_: Type[_M] = dict,  # type: ignore
-		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder, None] = None,
+		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder] = toml.TomlDecoder,
 		) -> _M:
 	r"""
 	Parse TOML from the given file.
@@ -168,6 +203,15 @@ def load(
 	:param decoder: The :class:`toml.TomlEncoder` to use for constructing the output string.
 
 	:returns: A mapping containing the ``TOML`` data.
+
+	.. versionchanged:: 0.5.0
+
+		* The default value for ``decoder`` changed from :py:obj:`None` to :class:`toml.TomlDecoder`
+		  Explicitly passing ``decoder=``\ :py:obj:`None` is deprecated and support will be removed in 1.0.0
+		* Instead, pass a decoder class or, if you use the ``dict_`` option,
+		  an instance of the decoder class for ``dict_``.
+
+	.. latex:clearpage::
 	"""
 
 	return loads(
