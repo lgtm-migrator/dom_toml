@@ -1,6 +1,6 @@
 [build-system]
-requires = [ "whey",]
-build-backend = "whey"
+requires = [ "flit-core<4,>=3.2",]
+build-backend = "flit_core.buildapi"
 
 [project]
 name = "dom_toml"
@@ -8,7 +8,25 @@ version = "0.5.0"
 description = "Dom's tools for Tom's Obvious, Minimal Language."
 readme = "README.rst"
 keywords = [ "configuration", "serialize", "toml",]
-dynamic = [ "requires-python", "classifiers", "dependencies",]
+requires-python = ">=3.6.1"
+dependencies = [ "toml>=0.10.2", "domdf-python-tools>=2.8.0",]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.6",
+    "Programming Language :: Python :: 3.7",
+    "Programming Language :: Python :: 3.8",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Programming Language :: Python :: Implementation :: PyPy",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+dynamic = []
 
 [[project.authors]]
 name = "Dominic Davis-Foster"
