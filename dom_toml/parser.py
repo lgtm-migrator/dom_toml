@@ -29,8 +29,10 @@ Abstract base class for TOML configuration parsers.
 #
 
 # stdlib
+import collections.abc
+import datetime
 from abc import ABC, abstractmethod
-from typing import Any, Callable, ClassVar, Dict, Iterable, List, Tuple, Type, TypeVar, Union
+from typing import Any, Callable, ClassVar, Dict, Iterable, List, Mapping, Tuple, Type, TypeVar, Union
 
 # 3rd party
 import toml
@@ -102,7 +104,28 @@ class AbstractConfigParser(ABC):
 				cls.factories = {}
 
 	@staticmethod
+	def translate_type(python_type: Type) -> str:
+		if issubclass(python_type, str):
+			return "<type 'string'>"
+		elif issubclass(python_type, bool):
+			return "<type 'boolean'>"
+		elif issubclass(python_type, int):
+			return "<type 'integer'>"
+		elif issubclass(python_type, float):
+			return "<type 'float'>"
+		elif issubclass(python_type, datetime.datetime):
+			return "<type 'date-time'>"
+		elif issubclass(python_type, datetime.date):
+			return "<type 'date'>"
+		elif issubclass(python_type, Mapping):
+			return "<type 'table'>"
+		elif issubclass(python_type, Iterable):
+			return "<type 'array'>"
+		else:
+			raise NotImplementedError(python_type)
+
 	def assert_type(
+			self,
 			obj: Any,
 			expected_type: Union[Type, Tuple[Type, ...]],
 			path: Iterable[str],
@@ -121,10 +144,39 @@ class AbstractConfigParser(ABC):
 
 		if not isinstance(obj, expected_type):
 			name = construct_path(path)
-			raise TypeError(f"Invalid {what} for {name!r}: expected {expected_type!r}, got {type(obj)!r}")
+			raise TypeError(
+					f"Invalid {what} for {name!r}: "
+					f"expected {self.translate_type(expected_type)}, got {self.translate_type(type(obj))}",
+					)
 
-	@staticmethod
+	def assert_sequence_not_str(
+			self,
+			obj: Any,
+			path: Iterable[str],
+			what: str = "type",
+			) -> None:
+		"""
+		Assert that ``obj`` is a :class:`~typing.Sequence` and not a :class:`str`,
+		otherwise raise an error with a helpful message.
+
+		:param obj: The object to check the type of.
+		:param path: The elements of the path to ``obj`` in the TOML mapping.
+		:param what: What ``obj`` is, e.g. ``'type'``, ``'value type'``.
+
+		.. versionadded:: 0.6.0
+		"""  # noqa: D400
+
+		if isinstance(obj, str):
+			name = construct_path(path)
+			raise TypeError(
+					f"Invalid {what} for {name!r}: "
+					f"expected {self.translate_type(list)}, got {self.translate_type(type(obj))}",
+					)
+
+		self.assert_type(obj, collections.abc.Sequence, path, what=what)
+
 	def assert_indexed_type(
+			self,
 			obj: Any,
 			expected_type: Union[Type, Tuple[Type, ...]],
 			path: Iterable[str],
@@ -143,7 +195,10 @@ class AbstractConfigParser(ABC):
 
 		if not isinstance(obj, expected_type):
 			name = construct_path(path) + f"[{idx}]"
-			raise TypeError(f"Invalid type for {name!r}: expected {expected_type!r}, got {type(obj)!r}")
+			raise TypeError(
+					f"Invalid type for {name!r}: "
+					f"expected {self.translate_type(expected_type)}, got {self.translate_type(type(obj))}",
+					)
 
 	def assert_value_type(
 			self,

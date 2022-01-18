@@ -227,37 +227,37 @@ authors = [{{name = "Łukasz Langa"}}]
 				pytest.param(
 						f'{MINIMAL_CONFIG}\nkeywords = [1, 2, 3, 4, 5]',
 						TypeError,
-						r"Invalid type for 'project.keywords\[0\]': expected <class 'str'>, got <class 'int'>",
+						r"Invalid type for 'project.keywords\[0\]': expected <type 'string'>, got <type 'integer'>",
 						id="keywords_wrong_type"
 						),
 				pytest.param(
 						f'{MINIMAL_CONFIG}\ndescription = [1, 2, 3, 4, 5]',
 						TypeError,
-						r"Invalid type for 'project.description': expected <class 'str'>, got <class 'list'>",
-						id="description_wrong_type"
+						r"Invalid type for 'project.description': expected <type 'string'>, got <type 'array'>",
+						id="description_wrong_type_list"
 						),
 				pytest.param(
 						f'{MINIMAL_CONFIG}\ndescription = 12345',
 						TypeError,
-						r"Invalid type for 'project.description': expected <class 'str'>, got <class 'int'>",
-						id="description_wrong_type"
+						r"Invalid type for 'project.description': expected <type 'string'>, got <type 'integer'>",
+						id="description_wrong_type_int"
 						),
 				pytest.param(
 						f'{MINIMAL_CONFIG}\nclassifiers = [1, 2, 3, 4, 5]',
 						TypeError,
-						r"Invalid type for 'project.classifiers\[0\]': expected <class 'str'>, got <class 'int'>",
+						r"Invalid type for 'project.classifiers\[0\]': expected <type 'string'>, got <type 'integer'>",
 						id="classifiers_wrong_type"
 						),
 				pytest.param(
 						f'{MINIMAL_CONFIG}\ndependencies = [1, 2, 3, 4, 5]',
 						TypeError,
-						r"Invalid type for 'project.dependencies\[0\]': expected <class 'str'>, got <class 'int'>",
+						r"Invalid type for 'project.dependencies\[0\]': expected <type 'string'>, got <type 'integer'>",
 						id="dependencies_wrong_type"
 						),
 				pytest.param(
 						f'{MINIMAL_CONFIG}\nurls = {{foo = 1234}}',
 						TypeError,
-						r"Invalid value type for 'project.urls.foo': expected <class 'str'>, got <class 'int'>",
+						r"Invalid value type for 'project.urls.foo': expected <type 'string'>, got <type 'integer'>",
 						id="urls_wrong_type"
 						),
 				]

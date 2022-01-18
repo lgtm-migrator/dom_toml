@@ -38,6 +38,8 @@ class PEP621Parser(AbstractConfigParser):
 
 		parsed_keywords = set()
 
+		self.assert_sequence_not_str(config["keywords"], ["project", "keywords"])
+
 		for idx, keyword in enumerate(config["keywords"]):
 			self.assert_indexed_type(keyword, str, ["project", "keywords"], idx=idx)
 			parsed_keywords.add(keyword)
@@ -213,38 +215,80 @@ authors = [{{name = "Łukasz Langa"}}]
 				pytest.param(
 						f'{MINIMAL_CONFIG}\nkeywords = [1, 2, 3, 4, 5]',
 						TypeError,
-						r"Invalid type for 'project.keywords\[0\]': expected <class 'str'>, got <class 'int'>",
+						r"Invalid type for 'project.keywords\[0\]': expected <type 'string'>, got <type 'integer'>",
 						id="keywords_wrong_type"
 						),
 				pytest.param(
 						f'{MINIMAL_CONFIG}\ndescription = [1, 2, 3, 4, 5]',
 						TypeError,
-						r"Invalid type for 'project.description': expected <class 'str'>, got <class 'list'>",
-						id="description_wrong_type"
+						r"Invalid type for 'project.description': expected <type 'string'>, got <type 'array'>",
+						id="description_wrong_type_list"
 						),
 				pytest.param(
 						f'{MINIMAL_CONFIG}\ndescription = 12345',
 						TypeError,
-						r"Invalid type for 'project.description': expected <class 'str'>, got <class 'int'>",
-						id="description_wrong_type"
+						r"Invalid type for 'project.description': expected <type 'string'>, got <type 'integer'>",
+						id="description_wrong_type_int"
 						),
 				pytest.param(
 						f'{MINIMAL_CONFIG}\nclassifiers = [1, 2, 3, 4, 5]',
 						TypeError,
-						r"Invalid type for 'project.classifiers\[0\]': expected <class 'str'>, got <class 'int'>",
+						r"Invalid type for 'project.classifiers\[0\]': expected <type 'string'>, got <type 'integer'>",
 						id="classifiers_wrong_type"
 						),
 				pytest.param(
 						f'{MINIMAL_CONFIG}\ndependencies = [1, 2, 3, 4, 5]',
 						TypeError,
-						r"Invalid type for 'project.dependencies\[0\]': expected <class 'str'>, got <class 'int'>",
+						r"Invalid type for 'project.dependencies\[0\]': expected <type 'string'>, got <type 'integer'>",
 						id="dependencies_wrong_type"
 						),
 				pytest.param(
 						f'{MINIMAL_CONFIG}\nurls = {{foo = 1234}}',
 						TypeError,
-						r"Invalid value type for 'project.urls.foo': expected <class 'str'>, got <class 'int'>",
+						r"Invalid value type for 'project.urls.foo': expected <type 'string'>, got <type 'integer'>",
 						id="urls_wrong_type"
+						),
+				pytest.param(
+						f'{MINIMAL_CONFIG}\nkeywords = 123',
+						TypeError,
+						"Invalid type for 'project.keywords': expected <type 'array'>, got <type 'integer'>",
+						id="invalid-keywords-type-int",
+						),
+				pytest.param(
+						f'{MINIMAL_CONFIG}\nkeywords = 1.23',
+						TypeError,
+						"Invalid type for 'project.keywords': expected <type 'array'>, got <type 'float'>",
+						id="invalid-keywords-type-float",
+						),
+				pytest.param(
+						f'{MINIMAL_CONFIG}\nkeywords = true',
+						TypeError,
+						"Invalid type for 'project.keywords': expected <type 'array'>, got <type 'boolean'>",
+						id="invalid-keywords-type-bool",
+						),
+				pytest.param(
+						f'{MINIMAL_CONFIG}\nkeywords = {{ foo = "bar" }}',
+						TypeError,
+						"Invalid type for 'project.keywords': expected <type 'array'>, got <type 'table'>",
+						id="invalid-keywords-type-table",
+						),
+				pytest.param(
+						f'{MINIMAL_CONFIG}\nkeywords = 1979-05-27',
+						TypeError,
+						"Invalid type for 'project.keywords': expected <type 'array'>, got <type 'date'>",
+						id="invalid-keywords-type-date",
+						),
+				pytest.param(
+						f'{MINIMAL_CONFIG}\nkeywords = 1979-05-27 07:32:00Z',
+						TypeError,
+						"Invalid type for 'project.keywords': expected <type 'array'>, got <type 'date-time'>",
+						id="invalid-keywords-type-datetime",
+						),
+				pytest.param(
+						f'{MINIMAL_CONFIG}\nkeywords = "123"',
+						TypeError,
+						"Invalid type for 'project.keywords': expected <type 'array'>, got <type 'string'>",
+						id="invalid-keywords-type-str",
 						),
 				]
 		)
