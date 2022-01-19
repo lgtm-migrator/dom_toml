@@ -46,5 +46,4 @@ sphinx_conf_epilogue:
 #  - source_link_target = "github"
 
 extra_sphinx_extensions:
- - sphinx_toolbox_experimental.html_section
  - sphinx_toolbox_experimental.autosummary_widths
