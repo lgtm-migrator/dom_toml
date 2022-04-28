@@ -119,7 +119,7 @@ def dump(
 
 @overload
 def loads(
-		s,
+		s: str,
 		dict_: Type[Dict[str, Any]] = ...,
 		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder] = toml.TomlDecoder,
 		) -> Dict[str, Any]: ...
@@ -127,15 +127,15 @@ def loads(
 
 @overload
 def loads(
-		s,
+		s: str,
 		dict_: Type[_M],
 		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder] = toml.TomlDecoder,
 		) -> _M: ...
 
 
 def loads(
-		s,
-		dict_: Type[_M] = dict,  # type: ignore
+		s: str,
+		dict_: Type[_M] = dict,  # type: ignore[assignment]
 		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder] = toml.TomlDecoder,
 		) -> _M:
 	r"""
@@ -168,7 +168,7 @@ def loads(
 			# TODO: deprecate this behaviour and the dict_ option in favour of passing an instance of the encoder.
 			decoder = decoder(dict_)
 
-	return toml.loads(  # type: ignore
+	return toml.loads(  # type: ignore[return-value]
 			s,
 			decoder=decoder,
 			)
@@ -192,7 +192,7 @@ def load(
 
 def load(
 		filename: PathLike,
-		dict_: Type[_M] = dict,  # type: ignore
+		dict_: Type[_M] = dict,  # type: ignore[assignment]
 		decoder: Union[Type[toml.TomlDecoder], toml.TomlDecoder] = toml.TomlDecoder,
 		) -> _M:
 	r"""

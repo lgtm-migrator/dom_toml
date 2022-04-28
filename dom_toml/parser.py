@@ -35,7 +35,7 @@ from typing import Any, Callable, ClassVar, Dict, Iterable, List, Optional, Tupl
 # 3rd party
 import toml
 
-__all__ = ["AbstractConfigParser", "BadConfigError", "construct_path"]
+__all__ = ["AbstractConfigParser", "BadConfigError", "construct_path", "TOML_TYPES"]
 
 TOML_TYPES = Any
 
@@ -54,7 +54,7 @@ class BadConfigError(ValueError):
 	#: A link to the documentation that explains the problematic option.
 	documentation: Optional[str]
 
-	def __init__(self, *args, documentation: Optional[str] = None):
+	def __init__(self, *args, documentation: Optional[str] = None) -> None:
 		super().__init__(*args)
 		self.documentation = documentation
 
@@ -106,7 +106,7 @@ class AbstractConfigParser(ABC):
 				pass
 	"""
 
-	def __init_subclass__(cls, **kwargs):
+	def __init_subclass__(cls, **kwargs) -> None:
 		if not kwargs.get("inherit_defaults", False):
 			if "defaults" not in cls.__dict__:
 				cls.defaults = {}
@@ -163,7 +163,7 @@ class AbstractConfigParser(ABC):
 			obj: Any,
 			expected_type: Union[Type, Tuple[Type, ...]],
 			path: Iterable[str],
-			):
+			) -> None:
 		"""
 		Assert that the value ``obj`` is of type ``expected_type``, otherwise raise an error with a helpful message.
 

@@ -128,7 +128,7 @@ class TomlEncoder(toml.TomlEncoder):
 		arraystr = StringList()
 		arraystr.indent_type = ' ' * 4
 
-		retdict = self._dict()  # type: ignore
+		retdict = self._dict()  # type: ignore[attr-defined]
 
 		for section in o:
 			section = str(section)
@@ -163,7 +163,7 @@ class TomlEncoder(toml.TomlEncoder):
 								arraystr.append(s)
 
 						while d:  # pragma: no cover
-							newd = self._dict()  # type: ignore
+							newd = self._dict()  # type: ignore[attr-defined]
 
 							for dsec in d:
 								s1, d1 = self.dump_sections(d[dsec], f"{sup}{qsection}.{dsec}")
@@ -220,4 +220,4 @@ def _dump_str(v):
 
 
 # Fix unicode characters on PyPy
-toml.encoder._dump_str = _dump_str  # type: ignore
+toml.encoder._dump_str = _dump_str  # type: ignore[attr-defined]

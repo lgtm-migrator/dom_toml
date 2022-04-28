@@ -12,13 +12,14 @@ class TestLoad:
 
 	def test_loads_decoder_none(self):
 		with pytest.warns(DeprecationWarning, match=self.match):
-			assert dom_toml.loads("hello = 'world'", decoder=None) == self.expected  # type: ignore
+			assert dom_toml.loads("hello = 'world'", decoder=None) == self.expected  # type: ignore[call-overload]
 
 	def test_load_decoder_none(self, tmp_pathplus: PathPlus):
 		(tmp_pathplus / "config.toml").write_clean("hello = 'world'")
 
 		with pytest.warns(DeprecationWarning, match=self.match):
-			assert dom_toml.load(tmp_pathplus / "config.toml", decoder=None) == self.expected  # type: ignore
+			result = dom_toml.load(tmp_pathplus / "config.toml", decoder=None)  # type: ignore[call-overload]
+			assert result == self.expected
 
 
 class TestDump:
@@ -28,11 +29,15 @@ class TestDump:
 	def test_dumps_encoder_none(self):
 
 		with pytest.warns(DeprecationWarning, match=self.match):
-			assert dom_toml.dumps({"hello": "world"}, encoder=None) == self.expected  # type: ignore
+			assert dom_toml.dumps({"hello": "world"}, encoder=None) == self.expected  # type: ignore[arg-type]
 
 	def test_dump_encoder_none(self, tmp_pathplus: PathPlus):
 
 		with pytest.warns(DeprecationWarning, match=self.match):
-			dom_toml.dump({"hello": "world"}, filename=tmp_pathplus / "config.toml", encoder=None)  # type: ignore
+			dom_toml.dump(
+					{"hello": "world"},
+					filename=tmp_pathplus / "config.toml",
+					encoder=None,  # type: ignore[arg-type]
+					)
 
 		assert (tmp_pathplus / "config.toml").read_text() == self.expected

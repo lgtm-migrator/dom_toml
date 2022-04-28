@@ -204,19 +204,19 @@ def test_decimal():
 	assert Decimal(o['a']).quantize(PLACES) == d['a'].quantize(PLACES)
 
 	with pytest.raises(TypeError):
-		loads(2)
+		loads(2)  # type: ignore[call-overload]
 
 	with pytest.raises(TypeError, match="expected str, bytes or os.PathLike object, not int"):
-		load(2)  # type: ignore
+		load(2)  # type: ignore[call-overload]
 
 	with pytest.raises(TypeError, match="expected str, bytes or os.PathLike object, not list"):
-		load([])  # type: ignore
+		load([])  # type: ignore[call-overload]
 
 	with pytest.raises(
 			TypeError,
 			match="argument should be a str object or an os.PathLike object returning str, not <class 'bytes'>"
 			):
-		load(b"test.toml")  # type: ignore
+		load(b"test.toml")  # type: ignore[call-overload]
 
 
 class FakeFile:

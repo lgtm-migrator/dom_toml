@@ -38,6 +38,9 @@ TOML decoders.
 #  OR OTHER DEALINGS IN THE SOFTWARE.
 #
 
+# stdlib
+from typing import Dict
+
 # 3rd party
 import toml
 
@@ -49,5 +52,5 @@ class TomlPureDecoder(toml.decoder.TomlDecoder):
 	TOML decoder which uses pure-Python dictionaries for inline tables.
 	"""
 
-	def get_empty_inline_table(self):  # noqa: D102
+	def get_empty_inline_table(self) -> Dict:  # noqa: D102
 		return {}
