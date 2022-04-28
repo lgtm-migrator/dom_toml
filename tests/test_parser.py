@@ -10,7 +10,7 @@ from domdf_python_tools.paths import PathPlus
 import dom_toml
 from dom_toml import load
 from dom_toml.decoder import TomlPureDecoder
-from dom_toml.parser import TOML_TYPES, AbstractConfigParser, construct_path
+from dom_toml.parser import TOML_TYPES, AbstractConfigParser, BadConfigError, construct_path
 
 
 class PEP621Parser(AbstractConfigParser):
@@ -293,3 +293,11 @@ def test_parse_valid_config(
 		)
 def test_construct_path(path: Iterable[str], expected: str):
 	assert construct_path(path) == expected
+
+
+def test_badconfigerror_documentation():
+
+	with pytest.raises(BadConfigError, match="Hello World") as e:
+		raise BadConfigError("Hello World", documentation="This is the documentation")
+
+	assert e.value.documentation == "This is the documentation"
