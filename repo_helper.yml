@@ -46,4 +46,4 @@ sphinx_conf_epilogue:
 #  - source_link_target = "github"
 
 extra_sphinx_extensions:
- - sphinx_toolbox_experimental.autosummary_widths
+ - sphinx_toolbox.more_autosummary.column_widths
