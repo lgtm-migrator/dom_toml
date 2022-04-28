@@ -30,7 +30,7 @@ Abstract base class for TOML configuration parsers.
 
 # stdlib
 from abc import ABC, abstractmethod
-from typing import Any, Callable, ClassVar, Dict, Iterable, List, Tuple, Type, TypeVar, Union
+from typing import Any, Callable, ClassVar, Dict, Iterable, List, Optional, Tuple, Type, TypeVar, Union
 
 # 3rd party
 import toml
@@ -43,7 +43,20 @@ TOML_TYPES = Any
 class BadConfigError(ValueError):
 	"""
 	Indicates an error in the TOML configuration.
+
+	:param documentation: A link to the documentation that explains the problematic option.
+		This is not used by the class itself, except setting it as the ``documentation`` attribute,
+		The intention is for code catching this exception to display this URL to the user.
+
+	.. versionchanged:: 0.6.0  Added the ``documentation`` keyword argument and attribute.
 	"""
+
+	#: A link to the documentation that explains the problematic option.
+	documentation: Optional[str]
+
+	def __init__(self, *args, documentation: Optional[str] = None):
+		super().__init__(*args)
+		self.documentation = documentation
 
 
 def construct_path(path: Iterable[str]) -> str:
